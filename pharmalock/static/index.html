@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PharmaLock</title>
+  <style>
+    :root {
+      --bg: #070e17;
+      --card-bg: rgba(15, 25, 42, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --line: rgba(255, 255, 255, 0.07);
+
+      /* Single primary accent: Teal */
+      --accent: #14b8a6;
+      --accent-hover: #0d9488;
+      --accent-glow: rgba(20, 184, 166, 0.15);
+
+      /* Semantic status indicators */
+      --status-ok: #34d399;
+      --status-warn: #fbbf24;
+      --status-bad: #f87171;
+      --status-info: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 15% 15%, #0f2338 0%, #081321 45%, #040911 100%);
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 28px;
+      background: rgba(10, 18, 30, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    h1 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1 span {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 13px;
+      letter-spacing: 0;
+      border-left: 1px solid var(--card-border);
+      padding-left: 10px;
+    }
+
+    .pill {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--status-ok);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      transition: all 0.3s ease;
+    }
+
+    .pill.bad {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--status-bad);
+      border-color: rgba(248, 113, 113, 0.4);
+      animation: pulseAlert 1.6s infinite ease-in-out;
+    }
+
+    @keyframes pulseAlert {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    #msg {
+      margin: 14px 28px 0;
+      padding: 11px 16px;
+      border-radius: 10px;
+      background: rgba(20, 184, 166, 0.12);
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      color: #e2e8f0;
+      font-size: 13px;
+      display: none;
+      backdrop-filter: blur(8px);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 18px;
+      padding: 20px 28px 36px;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+      header {
+        padding: 14px 16px;
+      }
+      #msg {
+        margin: 12px 16px 0;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    input, select {
+      background: rgba(10, 18, 30, 0.6);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    input[type=number] {
+      width: 76px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    td, th {
+      padding: 9px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .big {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    button {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      border-radius: 7px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.16);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button.p {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #04121a;
+      font-weight: 600;
+    }
+
+    button.p:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: #ffffff;
+    }
+
+    button.r {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(248, 113, 113, 0.35);
+      color: #fca5a5;
+    }
+
+    button.r:hover {
+      background: rgba(239, 68, 68, 0.32);
+      border-color: rgba(248, 113, 113, 0.55);
+      color: #ffffff;
+    }
+
+    button.g {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: rgba(52, 211, 153, 0.35);
+      color: #6ee7b7;
+    }
+
+    button.g:hover {
+      background: rgba(16, 185, 129, 0.32);
+      border-color: rgba(52, 211, 153, 0.55);
+      color: #ffffff;
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+    }
+
+    .badge.w {
+      background: rgba(245, 158, 11, 0.14);
+      color: var(--status-warn);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .badge.d {
+      background: rgba(239, 68, 68, 0.14);
+      color: var(--status-bad);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+
+    .locks {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .lk {
+      border: 1px solid var(--card-border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s;
+    }
+
+    .lk.held {
+      border-color: rgba(248, 113, 113, 0.35);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .lk.free b {
+      color: var(--status-ok);
+      font-weight: 600;
+    }
+
+    .lk.held b {
+      color: var(--status-bad);
+      font-weight: 600;
+    }
+
+    .wt {
+      color: var(--status-warn);
+      font-size: 11px;
+    }
+
+    .slots {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .slot {
+      flex: 1;
+      border: 1px dashed rgba(255, 255, 255, 0.14);
+      border-radius: 9px;
+      padding: 12px 6px;
+      text-align: center;
+      min-height: 58px;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slot.f {
+      border-style: solid;
+      border-color: rgba(20, 184, 166, 0.45);
+      background: rgba(20, 184, 166, 0.08);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .slot small {
+      display: block;
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: normal;
+      margin-top: 3px;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      max-height: 230px;
+      overflow-y: auto;
+      background: rgba(5, 10, 18, 0.45);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 10px 12px;
+    }
+
+    .mono::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .mono::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+    }
+
+    .C { color: var(--status-ok); }
+    .A { color: var(--status-bad); }
+    .U { color: var(--status-info); }
+
+    .demo {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .note {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PharmaLock <span>Pharmacy Drug Inventory Engine</span></h1>
+    <div id="st" class="pill">ENGINE OK</div>
+  </header>
+
+  <div id="msg"></div>
+
+  <main>
+    <!-- Section 1: Medicine Stock Table -->
+    <div class="card">
+      <h2>Medicine stock (read straight from the disk file)</h2>
+      <div class="bar">
+        Department
+        <select id="dept">
+          <option>Emergency</option>
+          <option>Surgery</option>
+          <option>ICU</option>
+          <option>Pediatrics</option>
+          <option>Ward</option>
+        </select>
+        Qty
+        <input id="qty" type="number" value="1" min="1">
+        Hold lock (sec)
+        <input id="hold" type="number" value="0" min="0" max="10" step="0.5">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Medicine</th>
+            <th>Stock</th>
+            <th>Expiry</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="meds"></tbody>
+      </table>
+      <div class="bar" style="margin: 14px 0 4px;">
+        Expiry check: within
+        <input id="days" type="number" value="30"> days
+        <button onclick="expiry()">Check</button>
+      </div>
+      <div id="exp" class="note"></div>
+    </div>
+
+    <!-- Section 2: Live Locks & Event Feed -->
+    <div style="display: grid; gap: 18px; align-content: start;">
+      <div class="card">
+        <h2>Live lock view</h2>
+        <div class="locks" id="locks"></div>
+      </div>
+      <div class="card">
+        <h2>Event feed</h2>
+        <div class="mono" id="ev"></div>
+      </div>
+    </div>
+
+    <!-- Section 3: Buffer Pool -->
+    <div class="card">
+      <h2>Buffer pool (memory, LRU)</h2>
+      <div class="slots" id="pool"></div>
+      <div class="note" id="ps"></div>
+      <div style="margin-top: auto;">
+        <button onclick="refreshPool()">Refresh by expiry (soonest first)</button>
+      </div>
+    </div>
+
+    <!-- Section 4: Write-Ahead Log -->
+    <div class="card">
+      <h2>Write-ahead log (last 14 lines)</h2>
+      <div class="mono" id="log"></div>
+    </div>
+
+    <!-- Section 5: Interactive Demos -->
+    <div class="card wide">
+      <h2>Demos</h2>
+      <div class="demo">
+        <button class="r" onclick="post('/api/demo/deadlock', {}).then(() => say('Deadlock demo started. Watch the lock view and event feed.'))">1. Deadlock demo</button>
+        <button class="r" onclick="crash()">2. Crash mid-dispense</button>
+        <button class="g" onclick="recover()">Recover from log</button>
+        <input id="n" type="number" value="150" style="width: 80px;">
+        <button class="p" onclick="stress()">3. Many-requests test</button>
+        <button onclick="post('/api/reset', {}).then(() => say('Reset to starting data.'))">Reset data</button>
+      </div>
+      <div class="note">Deadlock: Emergency takes #0 then #1, Surgery takes #1 then #0. Crash: dispenses 10 Paracetamol, dies before COMMIT. Many-requests: N departments each dispense 1 Paracetamol at once.</div>
+      <div id="stress" class="mono" style="margin-top: 8px;"></div>
+    </div>
+  </main>
+
+  <script>
+    const $ = s => document.getElementById(s);
+    let S = { meds: [] };
+
+    const post = (u, b) => fetch(u, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(b)
+    }).then(r => r.json());
+
+    function say(t) {
+      const m = $("msg");
+      m.textContent = t;
+      m.style.display = "block";
+      clearTimeout(say.t);
+      say.t = setTimeout(() => m.style.display = "none", 6000);
+    }
+
+    const name = p => (S.meds[p] || {}).name || "#" + p;
+
+    async function tick() {
+      S = await (await fetch("/api/state")).json();
+      render();
+    }
+
+    function render() {
+      $("st").textContent = S.crashed ? "ENGINE CRASHED - click Recover" : "ENGINE OK";
+      $("st").className = "pill" + (S.crashed ? " bad" : "");
+
+      $("meds").innerHTML = S.meds.map(m => {
+        const d = m.days_left;
+        const c = d < 0 ? "d" : d <= 30 ? "w" : "";
+        return `<tr>
+          <td>${m.name}</td>
+          <td class="big">${m.stock}</td>
+          <td><span class="badge ${c}">${d < 0 ? "EXPIRED" : d + " days"}</span></td>
+          <td>
+            <button class="p" onclick="act('dispense', ${m.id})">Dispense</button>
+            <button onclick="act('restock', ${m.id})">Restock</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+      $("locks").innerHTML = S.meds.map(m => {
+        const o = S.owners[m.id];
+        const w = Object.entries(S.waiting).filter(e => e[1] == m.id).map(e => S.names[e[0]]);
+        return `<div class="lk ${o ? "held" : "free"}">
+          ${m.name}<br>
+          <b>${o ? "LOCKED by T" + o + " (" + S.names[o] + ")" : "free"}</b>
+          ${w.length ? `<br><span class="wt">waiting: ${w.join(", ")}</span>` : ""}
+        </div>`;
+      }).join("");
+
+      $("ev").innerHTML = S.events.join("<br>") || "<span class='note'>No events yet</span>";
+
+      const pg = S.pool.order;
+      let h = "";
+      for (let i = 0; i < S.pool.cap; i++) {
+        const p = pg[i];
+        h += p === undefined
+          ? `<div class="slot">empty</div>`
+          : `<div class="slot f">${name(p)}<small>${i == 0 ? "next to evict (LRU)" : i == pg.length - 1 ? "most recent" : ""}</small></div>`;
+      }
+      $("pool").innerHTML = h;
+      $("ps").textContent = `Hits: ${S.pool.hits}   Misses: ${S.pool.misses}   Capacity: ${S.pool.cap}`;
+
+      $("log").innerHTML = S.log.map(l => `<div class="${l[0]}">${l}</div>`).join("");
+    }
+
+    async function act(k, pid) {
+      const r = await post("/api/" + k, {
+        pid,
+        dept: $("dept").value,
+        qty: +$("qty").value,
+        hold: +$("hold").value
+      });
+      if (!r.ok) say(r.error);
+      tick();
+    }
+
+    async function expiry() {
+      const r = await (await fetch("/api/expiry?days=" + $("days").value)).json();
+      $("exp").innerHTML = r.length
+        ? r.map(m => `${m.name}: ${m.days_left < 0 ? "EXPIRED" : m.days_left + " days left"}`).join(" &nbsp;|&nbsp; ")
+        : "Nothing expires in that time.";
+    }
+
+    async function refreshPool() {
+      const r = await post("/api/refresh", {});
+      say("Refreshed in this order: " + (r.order.join(", ") || "(memory empty - dispense something first)"));
+      tick();
+    }
+
+    async function crash() {
+      const r = await post("/api/demo/crash", { pid: 0, qty: 10 });
+      say(r.ok ? `CRASH! The disk file shows Paracetamol = ${r.disk} (half-done change). Now click Recover.` : r.error);
+      tick();
+    }
+
+    async function recover() {
+      const r = await post("/api/recover", {});
+      say(r.report.join(" | "));
+      tick();
+    }
+
+    async function stress() {
+      $("stress").textContent = "Running...";
+      const r = await post("/api/stress", { n: +$("n").value });
+      $("stress").innerHTML = `Requests: ${r.requests} &nbsp; Succeeded: ${r.succeeded} &nbsp; Refused (out of stock): ${r.refused}<br>Stock before: ${r.start} &nbsp; after: ${r.final} &nbsp; expected: ${r.expected}<br>Time: ${r.seconds}s (${r.per_sec} req/sec) &nbsp; <b class="${r.correct ? "C" : "A"}">${r.correct ? "STOCK CORRECT, never below zero" : "WRONG STOCK"}</b>`;
+      tick();
+    }
+
+    tick();
+    setInterval(tick, 600);
+  </script>
+</body>
+</html>
